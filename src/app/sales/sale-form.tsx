@@ -11,6 +11,7 @@ export function SaleForm({brands,rates,today}:{brands:Brand[];rates:Rate[];today
  <label className="text-sm font-medium">Valor da venda (R$)<input name="sale_amount" type="number" min="0.01" step="0.01" required className="mt-2 h-11 w-full rounded-xl border border-[#dedfd7] px-3 text-sm"/></label>
  <label className="text-sm font-medium">Comissão (%)<input name="commission_rate" type="number" min="0" max="100" step="0.01" value={rate===""?suggested:rate} onChange={e=>setRate(e.target.value)} required={Boolean(brandId)} className="mt-2 h-11 w-full rounded-xl border border-[#dedfd7] px-3 text-sm"/><span className="mt-1 block text-[11px] font-normal text-[#969d95]">Preenchida pela taxa vigente. Você pode editar.</span></label>
  <label className="text-sm font-medium">Data da venda<input name="sold_at" type="date" required value={soldAt} onChange={e=>{setSoldAt(e.target.value);setRate("");}} className="mt-2 h-11 w-full rounded-xl border border-[#dedfd7] px-3 text-sm"/></label>
- <label className="flex items-center gap-2 text-sm text-[#596459] sm:col-span-2 xl:col-span-4"><input type="checkbox" name="is_return" className="h-4 w-4"/> Registrar esta venda como devolução (não entra nos totais)</label>\n <div className="sm:col-span-2 xl:col-span-4"><button className="rounded-xl bg-[#26372c] px-5 py-3 text-sm font-medium text-white">Salvar venda</button></div>
+ <label className="flex items-center gap-2 text-sm text-[#596459] sm:col-span-2 xl:col-span-4"><input type="checkbox" name="is_return" className="h-4 w-4"/> Registrar esta venda como devolução (não entra nos totais)</label>
+ <div className="sm:col-span-2 xl:col-span-4"><button className="rounded-xl bg-[#26372c] px-5 py-3 text-sm font-medium text-white">Salvar venda</button></div>
  </form>;
 }
