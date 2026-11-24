@@ -7,10 +7,16 @@ function dateInSaoPaulo(){return new Intl.DateTimeFormat("en-CA",{timeZone:"Amer
 function startOfWeek(date:string){const d=new Date(date+"T12:00:00");const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return d.toISOString().slice(0,10);}
 export default async function PublicationsPage({searchParams}:{searchParams:Promise<{success?:string;error?:string;period?:string}>}){
  const p=await searchParams;const period:Period=p.period==="month"||p.period==="week"?p.period:"all";const today=dateInSaoPaulo();const monthStart=`${today.slice(0,7)}-01`;const weekStart=startOfWeek(today);
- const db=await createClient();const [{data:brands},{data:posts}]=await Promise.all([
-  db.from("brands").select("id,name,created_at").order("name"),
-  db.from("publications").select("id,brand_id,format,platform,published_at,brands(name)").order("published_at",{ascending:false}).limit(1000)
- ]);
+ const db=await createClient();const {data:brands}=await db.from("brands").select("id,name,created_at").order("name");
+ const {data:firstPage,error:firstError}=await db.from("publications").select("id,brand_id,format,platform,published_at,brands(name)").order("published_at",{ascending:false}).range(0,999);
+ if(firstError) throw new Error("Não foi possível carregar as publicações.");
+ const posts=[...(firstPage??[])];
+ for(let offset=1000;(firstPage?.length??0)===1000;offset+=1000){
+  const {data:nextPage,error}=await db.from("publications").select("id,brand_id,format,platform,published_at,brands(name)").order("published_at",{ascending:false}).range(offset,offset+999);
+  if(error) throw new Error("Não foi possível carregar todas as publicações.");
+  posts.push(...(nextPage??[]));
+  if((nextPage?.length??0)<1000) break;
+ }
  const filtered=(posts??[]).filter(post=>{
   const brand=brands?.find(b=>b.id===post.brand_id);const start=period==="month"?monthStart:period==="week"?weekStart:(brand?.created_at?.slice(0,10)??"0000-01-01");
   return post.published_at>=start&&post.published_at<=today;
@@ -37,7 +43,7 @@ export default async function PublicationsPage({searchParams}:{searchParams:Prom
    <div className="mt-5 grid gap-3 sm:grid-cols-3"><div className="rounded-xl bg-[#f7f7f3] p-4"><p className="text-xs text-[#8a928a]">Total de publicações</p><p className="mt-1 text-2xl font-semibold">{filtered.length}</p></div><div className="rounded-xl bg-[#f7f7f3] p-4"><p className="text-xs text-[#8a928a]">Stories</p><p className="mt-1 text-2xl font-semibold">{storyCount}</p></div><div className="rounded-xl bg-[#f7f7f3] p-4"><p className="text-xs text-[#8a928a]">Reels</p><p className="mt-1 text-2xl font-semibold">{reelCount}</p></div></div>
    <div className="mt-5 overflow-x-auto"><table className="w-full min-w-[500px] text-left text-sm"><thead className="text-xs text-[#8a928a]"><tr>{["Marca","Stories","Reels","Total"].map(x=><th key={x} className="border-b px-3 py-3 font-medium">{x}</th>)}</tr></thead><tbody>{(brands??[]).map(b=>{const items=filtered.filter(x=>x.brand_id===b.id);const stories=items.filter(x=>x.format==="story").length;const reels=items.filter(x=>x.format==="reel").length;return <tr key={b.id} className="border-b border-[#f0f0eb]"><td className="px-3 py-3 font-medium">{b.name}</td><td className="px-3 py-3">{stories}</td><td className="px-3 py-3">{reels}</td><td className="px-3 py-3 font-semibold">{items.length}</td></tr>})}</tbody></table></div>
   </section>
-  <section className="overflow-hidden rounded-2xl border border-[#e4e4dd] bg-white"><div className="border-b border-[#eeeee9] px-5 py-5"><h2 className="font-semibold">Gerenciamento de publicações</h2><p className="mt-1 text-xs text-[#8a928a]">Últimas 1000 publicações</p></div>
+  <section className="overflow-hidden rounded-2xl border border-[#e4e4dd] bg-white"><div className="border-b border-[#eeeee9] px-5 py-5"><h2 className="font-semibold">Gerenciamento de publicações</h2><p className="mt-1 text-xs text-[#8a928a]">Histórico completo de publicações</p></div>
    {(posts??[]).length?<div className="overflow-x-auto"><table className="w-full min-w-[680px] text-left text-sm"><thead className="bg-[#fafaf7] text-xs text-[#8a928a]"><tr>{["Data","Marca","Formato","Plataforma","Ações"].map(x=><th key={x} className="px-4 py-3 font-medium">{x}</th>)}</tr></thead><tbody>{(posts??[]).map(x=><tr key={x.id} className="border-t border-[#f0f0eb]"><td className="px-4 py-4">{new Date(x.published_at+"T12:00:00").toLocaleDateString("pt-BR")}</td><td className="px-4 py-4 font-medium">{(x.brands as unknown as {name:string}|null)?.name??"Marca"}</td><td className="px-4 py-4">{x.format==="story"?"Story":"Reel"}</td><td className="px-4 py-4">{x.platform==="instagram"?"Instagram":"TikTok"}</td><td className="px-4 py-3"><form action={deletePublication}><input type="hidden" name="publication_id" value={x.id}/><ConfirmDeleteButton>Excluir</ConfirmDeleteButton></form></td></tr>)}</tbody></table></div>:<p className="px-5 py-12 text-center text-sm text-[#8a928a]">Nenhuma publicação registrada ainda.</p>}
   </section>
  </AppShell>;
