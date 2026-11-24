@@ -1,7 +1,9 @@
+import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
 const money=(v:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(v);
 export default async function DashboardPage(){
+ await connection();
  const supabase=await createClient();const month=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo"}).format(new Date()).slice(0,7);const start=`${month}-01`;const end=new Date(Date.UTC(Number(month.slice(0,4)),Number(month.slice(5,7)),0)).toISOString().slice(0,10);
  const [{data:brands},{data:sales},{data:posts}]=await Promise.all([supabase.from("brands").select("id,name,coupon").order("name"),supabase.from("sales").select("brand_id,sale_amount,commission_amount").eq("is_return",false).gte("sold_at",start).lte("sold_at",end),supabase.from("publications").select("brand_id,format").gte("published_at",start).lte("published_at",end)]);
  const totalSales=(sales??[]).reduce((a,x)=>a+Number(x.sale_amount),0);const totalCommission=(sales??[]).reduce((a,x)=>a+Number(x.commission_amount),0);const stories=(posts??[]).filter(x=>x.format==="story").length;const reels=(posts??[]).filter(x=>x.format==="reel").length;
