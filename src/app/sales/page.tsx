@@ -1,3 +1,4 @@
+import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
 import { SaleForm } from "./sale-form";
@@ -30,7 +31,7 @@ export default async function SalesPage({searchParams}:{searchParams:Promise<{su
      <td className="px-4 py-3"><div className="flex items-center gap-2">
       <details className="relative"><summary className="cursor-pointer rounded-lg border border-[#dedfd7] px-3 py-2 text-xs">Editar</summary><div className="absolute right-0 z-10 mt-2 w-72 rounded-xl border border-[#dedfd7] bg-white p-4 shadow-xl"><form action={updateSale} className="space-y-3"><input type="hidden" name="sale_id" value={s.id}/><label className="block text-xs">Marca<select name="brand_id" defaultValue={s.brand_id} required className="mt-1 w-full rounded-lg border p-2">{(brands??[]).map(b=><option key={b.id} value={b.id}>{b.name}</option>)}</select></label><label className="block text-xs">Data<input name="sold_at" type="date" defaultValue={s.sold_at} required className="mt-1 w-full rounded-lg border p-2"/></label><label className="block text-xs">Valor da venda (R$)<input name="sale_amount" type="number" min="0.01" step="0.01" defaultValue={Number(s.sale_amount)} required className="mt-1 w-full rounded-lg border p-2"/></label><label className="block text-xs">Comissão (%)<input name="commission_rate" type="number" min="0" max="100" step="0.01" defaultValue={Number(s.commission_rate)} required className="mt-1 w-full rounded-lg border p-2"/></label><button className="w-full rounded-lg bg-[#26372c] px-3 py-2 text-xs text-white">Salvar alterações</button></form></div></details>
       <form action={setSaleReturn}><input type="hidden" name="sale_id" value={s.id}/><input type="hidden" name="is_return" value={s.is_return?"false":"true"}/><button className="rounded-lg border border-[#dedfd7] px-3 py-2 text-xs">{s.is_return?"Desfazer devolução":"Marcar devolução"}</button></form>
-      <form action={deleteSale}><input type="hidden" name="sale_id" value={s.id}/><button className="rounded-lg border border-red-200 px-3 py-2 text-xs text-red-700">Excluir</button></form>
+      <form action={deleteSale}><input type="hidden" name="sale_id" value={s.id}/><ConfirmDeleteButton>Excluir</ConfirmDeleteButton></form>
      </div></td>
     </tr>)}
    </tbody></table></div>:<p className="px-5 py-12 text-center text-sm text-[#8a928a]">Nenhuma venda registrada ainda.</p>}
