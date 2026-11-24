@@ -11,6 +11,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { BrandLogo } from "@/components/brand-logo";
 
 type Mode = "login" | "signup";
 
@@ -106,26 +107,20 @@ export function LoginForm() {
           <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full border border-[#d8b56a]/20" />
           <div className="absolute -bottom-40 -left-32 h-[30rem] w-[30rem] rounded-full border border-[#d8b56a]/10" />
 
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#d8b56a] text-[#1e2923]">
-              <span className="text-lg font-semibold">S</span>
-            </div>
-            <div>
-              <p className="text-sm font-semibold tracking-wide">Sales &amp; Publi</p>
-              <p className="text-xs text-[#aeb7b0]">Tracker</p>
-            </div>
+          <div className="relative z-10">
+            <BrandLogo variant="light" />
           </div>
 
           <div className="relative z-10 max-w-xl">
             <p className="mb-5 text-sm font-medium uppercase tracking-[0.2em] text-[#d8b56a]">
-              Seu negócio, sob controle.
+              Gestão de parcerias e performance
             </p>
             <h1 className="text-4xl font-semibold leading-[1.08] tracking-tight xl:text-6xl">
-              Transforme campanhas em resultados.
+              Suas parcerias. Seus resultados. Em perspectiva.
             </h1>
             <p className="mt-6 max-w-lg text-base leading-7 text-[#b9c0ba] xl:text-lg">
-              Organize suas parcerias, acompanhe seus cupons e tenha uma visão
-              clara de quanto suas campanhas realmente estão gerando.
+              Acompanhe marcas, organize publicações, registre vendas e entenda
+              o resultado real de cada parceria em um só lugar.
             </p>
 
             <div className="mt-10 grid max-w-md grid-cols-3 gap-6 border-t border-white/10 pt-6">
@@ -143,20 +138,14 @@ export function LoginForm() {
           </div>
 
           <p className="relative z-10 text-xs text-[#7f8982]">
-            Sales &amp; Publi Tracker
+            Auriventa <span className="mx-1 text-white/25">·</span> Sales &amp; Publi Tracker
           </p>
         </section>
 
         <section className="flex min-h-screen items-center justify-center px-6 py-12 sm:px-10">
           <div className="w-full max-w-md">
-            <div className="mb-12 flex items-center gap-3 lg:hidden">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1e2923] text-[#d8b56a]">
-                <span className="text-lg font-semibold">S</span>
-              </div>
-              <div>
-                <p className="text-sm font-semibold">Sales &amp; Publi</p>
-                <p className="text-xs text-neutral-500">Tracker</p>
-              </div>
+            <div className="mb-12 lg:hidden">
+              <BrandLogo variant="dark" />
             </div>
 
             <div className="mb-8">
@@ -306,7 +295,7 @@ export function LoginForm() {
             </div>
 
             <p className="mt-12 text-center text-xs leading-5 text-[#a0a39f]">
-              Sales &amp; Publi Tracker · Gestão de campanhas e resultados
+              Auriventa · Gestão de parcerias, publicações e resultados
             </p>
           </div>
         </section>
