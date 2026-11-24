@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
@@ -5,7 +6,9 @@ import { SaleForm } from "./sale-form";
 import { deleteSale, setSaleReturn, updateSale } from "@/app/actions";
 const br=(n:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(n);
 export default async function SalesPage({searchParams}:{searchParams:Promise<{success?:string;error?:string}>}){
- const p=await searchParams;const db=await createClient();
+ const p=await searchParams;
+ await connection();
+ const db=await createClient();
  const [{data:brands},{data:sales},{data:rates}]=await Promise.all([
   db.from("brands").select("id,name,default_commission").order("name"),
   db.from("sales").select("id,brand_id,sale_amount,commission_rate,commission_amount,sold_at,is_return,brands(name)").order("sold_at",{ascending:false}).limit(200),
