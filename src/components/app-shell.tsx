@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BarChart3, Building2, Clapperboard, ReceiptText } from "lucide-react";
 import { SignOutButton } from "@/app/dashboard/sign-out-button";
+import { BrandLogo } from "@/components/brand-logo";
 
 const navigation = [
   { href: "/dashboard", label: "Visão geral", icon: BarChart3 },
@@ -13,9 +14,8 @@ export function AppShell({ children, active }: { children: React.ReactNode; acti
   return (
     <div className="min-h-screen bg-[#f5f4f0] text-[#202720] lg:grid lg:grid-cols-[248px_minmax(0,1fr)]">
       <aside className="border-b border-[#e4e3dc] bg-[#202c25] px-5 py-5 text-white lg:flex lg:min-h-screen lg:flex-col lg:border-b-0 lg:px-6 lg:py-8">
-        <Link href="/dashboard" className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#d7b76d] text-lg font-semibold text-[#202c25]">S</span>
-          <span><span className="block text-sm font-semibold tracking-wide">Sales &amp; Publi</span><span className="block text-xs text-white/55">TRACKER</span></span>
+        <Link href="/dashboard" aria-label="Auriventa — início" className="inline-flex w-fit items-center">
+          <BrandLogo variant="light" />
         </Link>
         <p className="mb-3 mt-10 hidden text-[10px] font-semibold uppercase tracking-[.2em] text-white/40 lg:block">Workspace</p>
         <nav className="mt-6 flex gap-2 overflow-x-auto lg:mt-0 lg:flex-col">
