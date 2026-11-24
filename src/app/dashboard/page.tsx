@@ -1,45 +1,12 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { SignOutButton } from "./sign-out-button";
-
-export default async function DashboardPage() {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.getClaims();
-
-  if (error || !data?.claims) {
-    redirect("/login");
-  }
-
-  const email =
-    typeof data.claims.email === "string" ? data.claims.email : "Conta autenticada";
-
-  return (
-    <main className="min-h-screen bg-[#f5f3ef] px-6 py-10 text-[#20221f]">
-      <div className="mx-auto max-w-6xl">
-        <header className="flex items-center justify-between border-b border-[#deddd7] pb-6">
-          <div>
-            <p className="text-sm font-semibold tracking-wide">Sales &amp; Publi</p>
-            <p className="text-xs text-[#737873]">Tracker</p>
-          </div>
-          <SignOutButton />
-        </header>
-
-        <section className="py-16">
-          <p className="text-sm font-medium text-[#66736a]">Área de trabalho</p>
-          <h1 className="mt-2 text-4xl font-semibold tracking-tight">
-            Bem-vindo ao Sales &amp; Publi Tracker.
-          </h1>
-          <p className="mt-4 text-[#737873]">
-            Sua autenticação está funcionando. Esta será a base do seu painel de campanhas.
-          </p>
-          <div className="mt-10 rounded-2xl border border-[#e2e0d9] bg-white p-6 shadow-sm">
-            <p className="text-xs font-medium uppercase tracking-[0.15em] text-[#8b918d]">
-              Conta conectada
-            </p>
-            <p className="mt-2 text-base font-medium">{email}</p>
-          </div>
-        </section>
-      </div>
-    </main>
-  );
+import { AppShell } from "@/components/app-shell";
+const money=(v:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(v);
+export default async function DashboardPage(){
+ const supabase=await createClient();const month=new Date().toISOString().slice(0,7);const start=`${month}-01`;const end=new Date(new Date(start).getFullYear(),new Date(start).getMonth()+1,0).toISOString().slice(0,10);
+ const [{data:brands},{data:sales},{data:posts}]=await Promise.all([supabase.from("brands").select("id,name,coupon").order("name"),supabase.from("sales").select("brand_id,sale_amount,commission_amount").gte("sold_at",start).lte("sold_at",end),supabase.from("publications").select("brand_id,format").gte("published_at",start).lte("published_at",end)]);
+ const totalSales=(sales??[]).reduce((a,x)=>a+Number(x.sale_amount),0);const totalCommission=(sales??[]).reduce((a,x)=>a+Number(x.commission_amount),0);const stories=(posts??[]).filter(x=>x.format==="story").length;const reels=(posts??[]).filter(x=>x.format==="reel").length;
+ return <AppShell active="/dashboard"><div className="mb-8 flex flex-wrap items-end justify-between gap-4"><div><p className="text-sm text-[#7b857c]">Seu desempenho em {new Intl.DateTimeFormat("pt-BR",{month:"long",year:"numeric"}).format(new Date())}</p><h1 className="mt-1 text-3xl font-semibold tracking-tight">Visão geral</h1></div><span className="rounded-full border border-[#dedfd7] bg-white px-3 py-1.5 text-xs text-[#687268]">Dados do mês atual</span></div>
+ <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{[["Vendas registradas",String((sales??[]).length),"Neste mês"],["Faturamento",money(totalSales),"Valor total vendido"],["Comissões geradas",money(totalCommission),"Comissão calculada"],["Conteúdo publicado",String(stories+reels),`${stories} stories · ${reels} reels`]].map(([l,v,d])=><article key={l} className="rounded-2xl border border-[#e4e4dd] bg-white p-5"><p className="text-sm text-[#7b857c]">{l}</p><p className="mt-3 text-2xl font-semibold tracking-tight">{v}</p><p className="mt-1 text-xs text-[#9a9f98]">{d}</p></article>)}</section>
+ <section className="mt-8 overflow-hidden rounded-2xl border border-[#e4e4dd] bg-white"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eeeee9] px-5 py-5"><div><h2 className="font-semibold">Desempenho por marca</h2><p className="mt-1 text-xs text-[#8a928a]">Vendas e publicações no mês atual</p></div><a href="/brands" className="text-sm font-medium text-[#526b59] hover:underline">Gerenciar marcas →</a></div>
+ {(brands??[]).length?<div className="overflow-x-auto"><table className="w-full min-w-[680px] text-left text-sm"><thead className="bg-[#fafaf7] text-xs text-[#8a928a]"><tr>{["Marca","Vendas","Comissão","Stories","Reels"].map(x=><th key={x} className="px-5 py-3 font-medium">{x}</th>)}</tr></thead><tbody>{(brands??[]).map(b=>{const ss=(sales??[]).filter(x=>x.brand_id===b.id);const pp=(posts??[]).filter(x=>x.brand_id===b.id);return <tr key={b.id} className="border-t border-[#f0f0eb]"><td className="px-5 py-4 font-medium">{b.name}<span className="mt-1 block text-xs font-normal text-[#9a9f98]">{b.coupon}</span></td><td className="px-5 py-4">{money(ss.reduce((a,x)=>a+Number(x.sale_amount),0))}</td><td className="px-5 py-4">{money(ss.reduce((a,x)=>a+Number(x.commission_amount),0))}</td><td className="px-5 py-4">{pp.filter(x=>x.format==="story").length}</td><td className="px-5 py-4">{pp.filter(x=>x.format==="reel").length}</td></tr>})}</tbody></table></div>:<div className="px-6 py-12 text-center"><p className="font-medium">Você ainda não cadastrou marcas</p><p className="mt-1 text-sm text-[#8a928a]">Cadastre sua primeira marca para começar a acompanhar os resultados.</p><a href="/brands" className="mt-4 inline-flex rounded-xl bg-[#26372c] px-4 py-2.5 text-sm font-medium text-white">Cadastrar marca</a></div>}</section></AppShell>;
 }
