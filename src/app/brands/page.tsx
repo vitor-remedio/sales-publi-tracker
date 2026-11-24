@@ -7,9 +7,9 @@ export default async function BrandsPage({ searchParams }: { searchParams: Promi
   const db = await createClient();
   const [{ data: brands }, { data: rates }] = await Promise.all([
     db.from("brands").select("id,name,coupon,url,default_commission").order("name"),
-    db.from("brand_commissions").select("brand_id,commission_rate").eq("month_start", new Date().toISOString().slice(0, 7) + "-01"),
+    db.from("brand_commissions").select("brand_id,commission_rate").eq("month_start", new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date()).slice(0, 7) + "-01"),
   ]);
-  const month = new Date().toISOString().slice(0, 7);
+  const month = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date()).slice(0, 7);
   const monthName = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(new Date());
   return <AppShell active="/brands">
     <div className="mb-8"><p className="text-sm text-[#7b857c]">Parcerias e programas de afiliados</p><h1 className="mt-1 text-3xl font-semibold">Marcas</h1><p className="mt-2 text-sm text-[#7b857c]">Cadastre suas marcas e gerencie a comissão vigente.</p></div>
