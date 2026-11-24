@@ -13,7 +13,11 @@ function numeric(formData: FormData, key: string) {
   return Number.isFinite(value) ? value : NaN;
 }
 
-function currentBrazilDate() {\n  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());\n}\n\nfunction monthStart(date: string) {
+function currentBrazilDate() {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
+}
+
+function monthStart(date: string) {
   return `${date.slice(0, 7)}-01`;
 }
 
@@ -37,7 +41,8 @@ export async function createBrand(formData: FormData) {
   let normalizedUrl = url;
   if (!/^https?:\/\//i.test(normalizedUrl)) normalizedUrl = `https://${normalizedUrl}`;
   try {
-    const parsedUrl = new URL(normalizedUrl);\n    if (!["http:", "https:"].includes(parsedUrl.protocol)) redirect("/brands?error=url");
+    const parsedUrl = new URL(normalizedUrl);
+    if (!["http:", "https:"].includes(parsedUrl.protocol)) redirect("/brands?error=url");
   } catch {
     redirect("/brands?error=url");
   }
@@ -140,6 +145,8 @@ export async function createSale(formData: FormData) {
     brand_id: brandId,
     sale_amount: amount,
     commission_rate: rate,
+    gross_amount_cents: Math.round(amount * 100),
+    commission_cents: Math.round(amount * rate),
     sold_at: soldAt,
   });
 
