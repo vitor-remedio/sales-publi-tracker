@@ -13,7 +13,7 @@ function numeric(formData: FormData, key: string) {
   return Number.isFinite(value) ? value : NaN;
 }
 
-function monthStart(date: string) {
+function currentBrazilDate() {\n  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());\n}\n\nfunction monthStart(date: string) {
   return `${date.slice(0, 7)}-01`;
 }
 
@@ -30,14 +30,14 @@ export async function createBrand(formData: FormData) {
   const url = text(formData, "url");
   const defaultCommission = numeric(formData, "default_commission");
 
-  if (!name || !coupon || !url || !Number.isFinite(defaultCommission) || defaultCommission < 0 || defaultCommission > 100) {
+  if (!name || !coupon || !url || text(formData, "default_commission") === "" || !Number.isFinite(defaultCommission) || defaultCommission < 0 || defaultCommission > 100) {
     redirect("/brands?error=invalid");
   }
 
   let normalizedUrl = url;
   if (!/^https?:\/\//i.test(normalizedUrl)) normalizedUrl = `https://${normalizedUrl}`;
   try {
-    new URL(normalizedUrl);
+    const parsedUrl = new URL(normalizedUrl);\n    if (!["http:", "https:"].includes(parsedUrl.protocol)) redirect("/brands?error=url");
   } catch {
     redirect("/brands?error=url");
   }
@@ -51,7 +51,7 @@ export async function createBrand(formData: FormData) {
 
   if (error || !brand) redirect("/brands?error=save");
 
-  const currentMonth = monthStart(new Date().toISOString().slice(0, 10));
+  const currentMonth = monthStart(currentBrazilDate());
   await supabase.from("brand_commissions").insert({
     brand_id: brand.id,
     month_start: currentMonth,
