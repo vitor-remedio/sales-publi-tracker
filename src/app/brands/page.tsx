@@ -1,16 +1,20 @@
+import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
 import { createBrand, updateMonthlyCommission } from "@/app/actions";
 
 export default async function BrandsPage({ searchParams }: { searchParams: Promise<{ success?: string; error?: string }> }) {
   const params = await searchParams;
+  await connection();
+  const now = new Date();
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(now);
+  const month = today.slice(0, 7);
+  const monthName = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric", timeZone: "America/Sao_Paulo" }).format(now);
   const db = await createClient();
   const [{ data: brands }, { data: rates }] = await Promise.all([
     db.from("brands").select("id,name,coupon,url,default_commission").order("name"),
-    db.from("brand_commissions").select("brand_id,commission_rate").eq("month_start", new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date()).slice(0, 7) + "-01"),
+    db.from("brand_commissions").select("brand_id,commission_rate").eq("month_start", `${month}-01`),
   ]);
-  const month = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date()).slice(0, 7);
-  const monthName = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(new Date());
   return <AppShell active="/brands">
     <div className="mb-8"><p className="text-sm text-[#7b857c]">Parcerias e programas de afiliados</p><h1 className="mt-1 text-3xl font-semibold">Marcas</h1><p className="mt-2 text-sm text-[#7b857c]">Cadastre suas marcas e gerencie a comissão vigente.</p></div>
     {params.success && <p role="status" className="mb-5 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">{params.success === "created" ? "Marca cadastrada." : "Comissão atualizada."}</p>}
