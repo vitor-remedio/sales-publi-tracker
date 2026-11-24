@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
 import { createPublication } from "@/app/actions";
 export default async function PublicationsPage({ searchParams }: { searchParams: Promise<{ success?: string; error?: string }> }) {
- const p=await searchParams;const db=await createClient();const [{data:brands},{data:posts}]=await Promise.all([db.from("brands").select("id,name").order("name"),db.from("publications").select("id,brand_id,format,platform,published_at,brands(name)").order("published_at",{ascending:false}).limit(100)]);const today=new Date().toISOString().slice(0,10);
+ const p=await searchParams;const db=await createClient();const [{data:brands},{data:posts}]=await Promise.all([db.from("brands").select("id,name").order("name"),db.from("publications").select("id,brand_id,format,platform,published_at,brands(name)").order("published_at",{ascending:false}).limit(100)]);const today=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo"}).format(new Date());
  return <AppShell active="/publications"><div className="mb-8"><p className="text-sm text-[#7b857c]">Seu calendário de conteúdo</p><h1 className="mt-1 text-3xl font-semibold">Publicações</h1><p className="mt-2 text-sm text-[#7b857c]">Registre stories e reels por marca e plataforma.</p></div>
  {p.success&&<p role="status" className="mb-5 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">Publicação registrada com sucesso.</p>}{p.error&&<p role="alert" className="mb-5 rounded-xl bg-red-50 p-3 text-sm text-red-700">Não foi possível registrar. Confira os campos.</p>}
  <section className="mb-8 rounded-2xl border border-[#e4e4dd] bg-white p-5"><h2 className="font-semibold">Registrar publicação</h2>
