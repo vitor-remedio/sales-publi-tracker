@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
@@ -6,7 +7,7 @@ type Period="all"|"month"|"week";
 function dateInSaoPaulo(){return new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo"}).format(new Date());}
 function startOfWeek(date:string){const d=new Date(date+"T12:00:00");const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return d.toISOString().slice(0,10);}
 export default async function PublicationsPage({searchParams}:{searchParams:Promise<{success?:string;error?:string;period?:string}>}){
- const p=await searchParams;const period:Period=p.period==="month"||p.period==="week"?p.period:"all";const today=dateInSaoPaulo();const monthStart=`${today.slice(0,7)}-01`;const weekStart=startOfWeek(today);
+ const p=await searchParams;await connection();const period:Period=p.period==="month"||p.period==="week"?p.period:"all";const today=dateInSaoPaulo();const monthStart=`${today.slice(0,7)}-01`;const weekStart=startOfWeek(today);
  const db=await createClient();const {data:brands}=await db.from("brands").select("id,name,created_at").order("name");
  const {data:firstPage,error:firstError}=await db.from("publications").select("id,brand_id,format,platform,published_at,brands(name)").order("published_at",{ascending:false}).range(0,999);
  if(firstError) throw new Error("Não foi possível carregar as publicações.");
