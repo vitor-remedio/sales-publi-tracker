@@ -56,14 +56,11 @@ export async function updateMonthlyCommission(formData: FormData) {
   const {error:rateError}=await supabase.from("brand_commissions").upsert({brand_id:brandId,month_start:start,commission_rate:rate,updated_at:new Date().toISOString()},{onConflict:"brand_id,month_start"});
   if(rateError) redirect("/brands?error=save");
   if(scope==="all"){
-    const {error}=await supabase.from("sales").update({commission_rate:rate,commission_cents:0}).eq("brand_id",brandId).gte("sold_at",start).lt("sold_at",end);
-    if(error) redirect("/brands?error=save");
-    // Keep the legacy amount-in-cents column synchronized with the generated commission.
-    const {data:monthSales,error:readError}=await supabase.from("sales").select("id,sale_amount,commission_rate").eq("brand_id",brandId).gte("sold_at",start).lt("sold_at",end);
+    const {data:monthSales,error:readError}=await supabase.from("sales").select("id,sale_amount").eq("brand_id",brandId).gte("sold_at",start).lt("sold_at",end);
     if(readError) redirect("/brands?error=save");
     for(const sale of monthSales??[]){
-      const cents=Math.round(Number(sale.sale_amount)*Number(sale.commission_rate));
-      const {error:updateError}=await supabase.from("sales").update({commission_cents:cents}).eq("id",sale.id);
+      const cents=Math.round(Number(sale.sale_amount)*rate);
+      const {error:updateError}=await supabase.from("sales").update({commission_rate:rate,commission_cents:cents}).eq("id",sale.id);
       if(updateError) redirect("/brands?error=save");
     }
   }
