@@ -50,35 +50,70 @@ export function RevenueChart({ points }: { points: Point[] }) {
 
 export function BrandBars({ data }: { data: { name: string; commission: number; publications: number }[] }) {
   if (!data.length) return <EmptyChart message="Nenhuma marca com dados no período." />;
-  const commissionHeights = scale(data.map((item) => item.commission), 150);
-  const publicationHeights = scale(data.map((item) => item.publications), 150);
+
+  const maxCommission = Math.max(...data.map((item) => item.commission), 1);
+  const maxPublications = Math.max(...data.map((item) => item.publications), 1);
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2">
-      <div>
-        <h3 className="font-semibold">Comissão por marca</h3>
-        <p className="mt-1 text-xs text-[#8a928a]">Retorno financeiro das parcerias</p>
-        <div className="mt-5 flex h-52 items-end gap-3 border-b border-[#e5e6df] px-2">
-          {data.map((item, index) => (
-            <div key={item.name} className="flex min-w-0 flex-1 flex-col items-center justify-end gap-2">
-              <span className="text-[10px] font-medium text-[#69736b]">{money(item.commission)}</span>
-              <div className="w-full max-w-14 rounded-t-lg bg-[#26372c]" style={{ height: commissionHeights[index] }} title={`${item.name}: ${money(item.commission)}`} />
-              <span className="max-w-20 truncate text-[10px] text-[#69736b]" title={item.name}>{item.name}</span>
-            </div>
-          ))}
-        </div>
+    <div>
+      <div className="mb-5">
+        <h3 className="font-semibold">Desempenho por marca</h3>
+        <p className="mt-1 text-xs text-[#8a928a]">Retorno financeiro e volume de conteúdo ficam separados para facilitar a leitura.</p>
       </div>
-      <div>
-        <h3 className="font-semibold">Publicações por marca</h3>
-        <p className="mt-1 text-xs text-[#8a928a]">Volume de conteúdo entregue</p>
-        <div className="mt-5 flex h-52 items-end gap-3 border-b border-[#e5e6df] px-2">
-          {data.map((item, index) => (
-            <div key={item.name} className="flex min-w-0 flex-1 flex-col items-center justify-end gap-2">
-              <span className="text-[10px] font-medium text-[#69736b]">{item.publications}</span>
-              <div className="w-full max-w-14 rounded-t-lg bg-[#c9a85a]" style={{ height: publicationHeights[index] }} title={`${item.name}: ${item.publications} publicações`} />
-              <span className="max-w-20 truncate text-[10px] text-[#69736b]" title={item.name}>{item.name}</span>
+
+      <div className="grid gap-5 lg:grid-cols-2">
+        <div className="rounded-2xl border border-[#e4e4dd] bg-[#fafaf7] p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h4 className="text-sm font-semibold">Comissão</h4>
+              <p className="mt-1 text-xs text-[#8a928a]">Retorno financeiro</p>
             </div>
-          ))}
+            <span className="rounded-full bg-[#26372c] px-2.5 py-1 text-[10px] font-medium text-white">R$</span>
+          </div>
+          <div className="mt-5 space-y-4">
+            {data.map((item) => (
+              <div key={item.name}>
+                <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
+                  <span className="truncate font-medium text-[#536057]" title={item.name}>{item.name}</span>
+                  <span className="shrink-0 font-semibold text-[#26372c]">{money(item.commission)}</span>
+                </div>
+                <div className="h-2.5 overflow-hidden rounded-full bg-[#e5e6df]">
+                  <div
+                    className="h-full rounded-full bg-[#26372c]"
+                    style={{ width: Math.max((item.commission / maxCommission) * 100, item.commission > 0 ? 4 : 0) + "%" }}
+                    title={item.name + ": " + money(item.commission)}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-[#e4e4dd] bg-[#fafaf7] p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h4 className="text-sm font-semibold">Publicações</h4>
+              <p className="mt-1 text-xs text-[#8a928a]">Volume de conteúdo entregue</p>
+            </div>
+            <span className="rounded-full bg-[#c9a85a] px-2.5 py-1 text-[10px] font-medium text-[#26372c]">PUBLI</span>
+          </div>
+          <div className="mt-5 space-y-4">
+            {data.map((item) => (
+              <div key={item.name}>
+                <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
+                  <span className="truncate font-medium text-[#536057]" title={item.name}>{item.name}</span>
+                  <span className="shrink-0 font-semibold text-[#69736b]">{item.publications}</span>
+                </div>
+                <div className="h-2.5 overflow-hidden rounded-full bg-[#e5e6df]">
+                  <div
+                    className="h-full rounded-full bg-[#c9a85a]"
+                    style={{ width: Math.max((item.publications / maxPublications) * 100, item.publications > 0 ? 4 : 0) + "%" }}
+                    title={item.name + ": " + item.publications + " publicações"}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
