@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const PAGE_SIZE = 10;
 
-export function PaginatedTableBody({ rows }: { rows: ReactNode[] }) {
+export function PaginatedTableBody({ rows, colSpan }: { rows: ReactNode[]; colSpan: number }) {
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -17,7 +17,7 @@ export function PaginatedTableBody({ rows }: { rows: ReactNode[] }) {
       {rows.length > 0 && (
         <tfoot>
           <tr>
-            <td colSpan={20} className="border-t border-[#eeeee9] px-4 py-3">
+            <td colSpan={colSpan} className="border-t border-[#eeeee9] px-4 py-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-xs text-[#8a928a]">
                   Mostrando {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, rows.length)} de {rows.length} registros
