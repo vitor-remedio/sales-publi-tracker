@@ -13,7 +13,7 @@ const navigation = [
 export function AppShell({ children, active }: { children: React.ReactNode; active: string }) {
   return (
     <div className="min-h-screen bg-[#f5f4f0] text-[#202720] lg:grid lg:grid-cols-[248px_minmax(0,1fr)]">
-      <aside className="border-b border-[#e4e3dc] bg-[#202c25] px-5 py-5 text-white lg:flex lg:min-h-screen lg:flex-col lg:border-b-0 lg:px-6 lg:py-8">
+      <aside className="border-b border-[#e4e3dc] bg-[#202c25] px-5 py-5 text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:min-h-0 lg:flex-col lg:self-start lg:border-b-0 lg:px-6 lg:py-8">
         <Link href="/dashboard" aria-label="Auriventa — início" className="inline-flex w-fit items-center">
           <BrandLogo variant="light" />
         </Link>
