@@ -124,7 +124,7 @@ export default async function DashboardPage({
   const brandData = brands
     .filter((brand) => !selectedBrandIds.length || selectedBrandIds.includes(brand.id))
     .map((brand) => {
-      const brandSales = validSales.filter((sale) => sale.brand_id === brand.id);
+      const brandSales = allSales.filter((sale) => sale.brand_id === brand.id);
       const brandPosts = publications.filter((post) => post.brand_id === brand.id);
       return {
         name: brand.name,
@@ -135,7 +135,7 @@ export default async function DashboardPage({
     .filter((brand) => brand.commission > 0 || brand.publications > 0);
 
   const salesByDate = new Map<string, number>();
-  validSales.forEach((sale) => {
+  allSales.forEach((sale) => {
     salesByDate.set(sale.sold_at, (salesByDate.get(sale.sold_at) || 0) + signedAmount(sale));
   });
 
