@@ -79,8 +79,7 @@ export default async function DashboardPage({
 
   let salesQuery = db
     .from("sales")
-    .select("brand_id,sale_amount,commission_amount,sold_at,is_return")
-    .eq("is_return", false);
+    .select("brand_id,sale_amount,commission_amount,sold_at,is_return");
 
   let postsQuery = db
     .from("publications")
@@ -108,10 +107,17 @@ export default async function DashboardPage({
     throw new Error("Não foi possível carregar os dados do dashboard.");
   }
 
-  const validSales = sales ?? [];
+  // Devoluções são armazenadas com valores positivos e sinalizadas por is_return.
+  // Para apresentar o resultado líquido, elas entram na soma com sinal negativo.
+  const allSales = sales ?? [];
+  const validSales = allSales.filter((sale) => !sale.is_return);
+  const signedAmount = (sale: (typeof allSales)[number]) =>
+    Number(sale.sale_amount) * (sale.is_return ? -1 : 1);
+  const signedCommission = (sale: (typeof allSales)[number]) =>
+    Number(sale.commission_amount) * (sale.is_return ? -1 : 1);
   const publications = posts ?? [];
-  const totalSales = validSales.reduce((sum, sale) => sum + Number(sale.sale_amount), 0);
-  const totalCommission = validSales.reduce((sum, sale) => sum + Number(sale.commission_amount), 0);
+  const totalSales = allSales.reduce((sum, sale) => sum + signedAmount(sale), 0);
+  const totalCommission = allSales.reduce((sum, sale) => sum + signedCommission(sale), 0);
   const publicationCount = publications.length;
   const returnPerPublication = publicationCount ? totalCommission / publicationCount : 0;
 
@@ -122,7 +128,7 @@ export default async function DashboardPage({
       const brandPosts = publications.filter((post) => post.brand_id === brand.id);
       return {
         name: brand.name,
-        commission: brandSales.reduce((sum, sale) => sum + Number(sale.commission_amount), 0),
+        commission: brandSales.reduce((sum, sale) => sum + signedCommission(sale), 0),
         publications: brandPosts.length,
       };
     })
@@ -130,7 +136,7 @@ export default async function DashboardPage({
 
   const salesByDate = new Map<string, number>();
   validSales.forEach((sale) => {
-    salesByDate.set(sale.sold_at, (salesByDate.get(sale.sold_at) || 0) + Number(sale.sale_amount));
+    salesByDate.set(sale.sold_at, (salesByDate.get(sale.sold_at) || 0) + signedAmount(sale));
   });
 
   const revenuePoints = Array.from(salesByDate.entries())
