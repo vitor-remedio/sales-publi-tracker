@@ -2,6 +2,7 @@ import { connection } from "next/server";
 import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
+import { PaginatedTableBody } from "@/components/paginated-table-body";
 import { SaleForm } from "./sale-form";
 import { deleteSale, setSaleReturn, updateSale } from "@/app/actions";
 const br=(n:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(n);
@@ -25,8 +26,7 @@ export default async function SalesPage({searchParams}:{searchParams:Promise<{su
   </section>
   <section className="overflow-hidden rounded-2xl border border-[#e4e4dd] bg-white">
    <div className="border-b border-[#eeeee9] px-5 py-5"><h2 className="font-semibold">Gerenciamento de vendas</h2><p className="mt-1 text-xs text-[#8a928a]">Últimas 200 vendas. Devoluções ficam no histórico, mas não entram nos totais.</p></div>
-   {(sales??[]).length?<div className="overflow-x-auto"><table className="w-full min-w-[1050px] text-left text-sm"><thead className="bg-[#fafaf7] text-xs text-[#8a928a]"><tr>{["Data","Marca","Valor","Taxa","Comissão","Status","Ações"].map(x=><th key={x} className="px-4 py-3 font-medium">{x}</th>)}</tr></thead><tbody>
-    {(sales??[]).map(s=><tr key={s.id} className={`border-t border-[#f0f0eb] ${s.is_return?"bg-amber-50/50":""}`}>
+   {(sales??[]).length?<div className="overflow-x-auto"><table className="w-full min-w-[1050px] text-left text-sm"><thead className="bg-[#fafaf7] text-xs text-[#8a928a]"><tr>{["Data","Marca","Valor","Taxa","Comissão","Status","Ações"].map(x=><th key={x} className="px-4 py-3 font-medium">{x}</th>)}</tr></thead><PaginatedTableBody colSpan={7} rows={(sales??[]).map(s=><tr key={s.id} className={`border-t border-[#f0f0eb] ${s.is_return?"bg-amber-50/50":""}`}>
      <td className="px-4 py-4">{new Date(s.sold_at+"T12:00:00").toLocaleDateString("pt-BR")}</td>
      <td className="px-4 py-4 font-medium">{(s.brands as unknown as {name:string}|null)?.name??brandName(s.brand_id)}</td>
      <td className="px-4 py-4">{br(Number(s.sale_amount))}</td><td className="px-4 py-4">{Number(s.commission_rate)}%</td><td className="px-4 py-4 font-medium">{br(Number(s.commission_amount))}</td>
@@ -36,8 +36,8 @@ export default async function SalesPage({searchParams}:{searchParams:Promise<{su
       <form action={setSaleReturn}><input type="hidden" name="sale_id" value={s.id}/><input type="hidden" name="is_return" value={s.is_return?"false":"true"}/><button className="rounded-lg border border-[#dedfd7] px-3 py-2 text-xs">{s.is_return?"Desfazer devolução":"Marcar devolução"}</button></form>
       <form action={deleteSale}><input type="hidden" name="sale_id" value={s.id}/><ConfirmDeleteButton>Excluir</ConfirmDeleteButton></form>
      </div></td>
-    </tr>)}
-   </tbody></table></div>:<p className="px-5 py-12 text-center text-sm text-[#8a928a]">Nenhuma venda registrada ainda.</p>}
+    </tr>)} />
+   </table></div>:<p className="px-5 py-12 text-center text-sm text-[#8a928a]">Nenhuma venda registrada ainda.</p>}
   </section>
  </AppShell>;
 }
